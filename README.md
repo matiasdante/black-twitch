@@ -1,4 +1,4 @@
-# Twitch Desktop
+# Black Twitch
 
 App sencilla en Electron para ver Twitch sin usar el navegador. Carga `https://www.twitch.tv/` en una ventana de escritorio (menú oculto) y abre enlaces externos en tu navegador por defecto.
 
