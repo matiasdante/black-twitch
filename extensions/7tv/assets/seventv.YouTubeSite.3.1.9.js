@@ -1,0 +1,7 @@
+import{_ as d}from"./seventv.preload-helper.3.1.9.js";import{_ as l}from"./seventv.ChatModule.vue_vue_type_script_setup_true_lang.3.1.9.js";import{k as f,i as _}from"./seventv.GearsIcon.3.1.9.js";import{g as F}from"./seventv.useModule.3.1.9.js";import{e as g,x as a,l as B,E,B as M,u as m,F as P,$ as T}from"./seventv.index.3.1.9.js";import"./seventv.ChatMessage.3.1.9.js";import"./seventv.useChatEmotes.3.1.9.js";const b=g({__name:"YouTubeSite",setup(h){const u=T(()=>d(()=>import("./seventv.ModuleWrapper.3.1.9.js"),__vite__mapDeps([0,1]),import.meta.url)),n=f(),s=_();s.preferredFormat=n.avifSupported?"AVIF":"WEBP",n.setPreferredImageFormat(s.preferredFormat),n.setPlatform("YOUTUBE",["7TV","FFZ","BTTV"],[]);const o=Object.assign({"./modules/chat/ChatModule.vue":l});for(const t in o){const r=t.split("/"),e=r.splice(r.length-2,1).pop();o[e]=o[t],delete o[t]}function i(t,r){const e=F(t);e&&(e.instance=r)}return(t,r)=>(a(!0),B(P,null,E(Object.entries(m(o)),([e,p])=>(a(),M(m(u),{key:e,mod:p,onMounted:c=>i(e,c)},null,8,["mod","onMounted"]))),128))}});export{b as default};
+function __vite__mapDeps(indexes) {
+  if (!__vite__mapDeps.viteFileDeps) {
+    __vite__mapDeps.viteFileDeps = ["./seventv.ModuleWrapper.3.1.9.js","./seventv.index.3.1.9.js"]
+  }
+  return indexes.map((i) => __vite__mapDeps.viteFileDeps[i])
+}

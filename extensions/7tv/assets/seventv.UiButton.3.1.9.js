@@ -1,0 +1,1 @@
+import{e as o,l as s,an as t,m as n,x as a,_ as r}from"./seventv.index.3.1.9.js";const c={class:"ui-button-icon"},_=o({__name:"UiButton",setup(u){return(e,i)=>(a(),s("button",null,[t(e.$slots,"default",{},void 0,!0),n("span",c,[t(e.$slots,"icon",{},void 0,!0)])]))}}),d=r(_,[["__scopeId","data-v-5823deb4"]]);export{d as U};

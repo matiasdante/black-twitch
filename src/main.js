@@ -1,5 +1,6 @@
 const { app, BrowserWindow, shell, session, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 // Permitir autoplay sin gesto del usuario (útil para streams)
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
@@ -9,13 +10,10 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 // Asegurar carpeta de datos de usuario con permisos
 try {
-  const fs = require('fs');
   const userDataDir = path.join(app.getPath('appData'), 'twitch-desktop');
   fs.mkdirSync(userDataDir, { recursive: true });
   app.setPath('userData', userDataDir);
-  const diskCacheDir = path.join(userDataDir, 'Cache');
-  fs.mkdirSync(diskCacheDir, { recursive: true });
-  app.commandLine.appendSwitch('disk-cache-dir', diskCacheDir);
+  // Se evita forzar 'disk-cache-dir' para prevenir errores de permisos en Windows
 } catch {}
 
 // Asegura una sola instancia
@@ -214,6 +212,13 @@ function createWindow() {
 
   win.webContents.on('did-finish-load', async () => {
     try { cssKey = await win.webContents.insertCSS(css); } catch {}
+    // Aplicar extensiones configuradas (userscripts/CSS) tras cargar la página
+    try { await applyConfiguredExtensions(win); } catch {}
+  });
+
+  // Al navegar dentro de Twitch, re-aplicar por si cambia el host/path
+  win.webContents.on('did-navigate-in-page', async () => {
+    try { await applyConfiguredExtensions(win); } catch {}
   });
 
   // IPC: controles de ventana
@@ -237,11 +242,107 @@ function createWindow() {
   // win.webContents.openDevTools({ mode: 'detach' });
 }
 
-app.whenReady().then(() => {
+// --------- Soporte de "extensiones" ---------
+function readExtensionsConfig() {
+  const configPath = path.join(__dirname, '..', 'resources', 'extensions.json');
+  try {
+    const raw = fs.readFileSync(configPath, 'utf8');
+    const json = JSON.parse(raw);
+    if (Array.isArray(json.extensions)) return json.extensions;
+  } catch {}
+  return [];
+}
+
+async function loadChromeExtensionsFromConfig() {
+  const items = readExtensionsConfig();
+  const chromeExts = items.filter(e => e && e.enabled && e.type === 'chrome' && typeof e.extensionPath === 'string');
+  for (const ext of chromeExts) {
+    try {
+      const baseDir = path.join(__dirname, '..');
+      const resolvedPath = path.isAbsolute(ext.extensionPath)
+        ? ext.extensionPath
+        : path.join(baseDir, ext.extensionPath);
+      if (fs.existsSync(resolvedPath)) {
+        const info = await session.defaultSession.loadExtension(resolvedPath, { allowFileAccess: true });
+        if (info && info.name) {
+          console.log(`[extensions] Cargada extensión: ${info.name} (${info.id}) desde ${resolvedPath}`);
+        } else {
+          console.log(`[extensions] Cargada extensión desde ${resolvedPath}`);
+        }
+      } else {
+        // console.warn(`[extensions] Ruta de extensión no existe: ${resolvedPath}`);
+      }
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
+  }
+}
+
+// IPC para que el preload conozca userscripts/css habilitados
+ipcMain.handle('extensions:get-config', () => {
+  const items = readExtensionsConfig();
+  const allowed = items.filter(e => e && e.enabled && (e.type === 'userscript' || e.type === 'css'));
+  return allowed;
+});
+
+function toPatternRegex(pattern) {
+  if (!pattern || typeof pattern !== 'string') return /.*/;
+  // Muy simple: escapa regex y reemplaza '*' por '.*'
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+  const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
+  try { return new RegExp(regexStr, 'i'); } catch { return /.*/; }
+}
+
+async function fetchText(url) {
+  return await new Promise((resolve, reject) => {
+    try {
+      const isHttps = /^https:/i.test(url);
+      const mod = isHttps ? require('https') : require('http');
+      const req = mod.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 Electron' } }, (res) => {
+        if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          // seguir redirección simple
+          return resolve(fetchText(res.headers.location));
+        }
+        if (res.statusCode && res.statusCode >= 400) {
+          return reject(new Error(`HTTP ${res.statusCode}`));
+        }
+        let data = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => data += chunk);
+        res.on('end', () => resolve(data));
+      });
+      req.on('error', reject);
+    } catch (e) { reject(e); }
+  });
+}
+
+async function applyConfiguredExtensions(win) {
+  const items = readExtensionsConfig();
+  if (!Array.isArray(items) || items.length === 0) return;
+  const currentUrl = win.webContents.getURL();
+  for (const item of items) {
+    if (!item || !item.enabled) continue;
+    const rx = toPatternRegex(item.match || '*://*.twitch.tv/*');
+    if (!rx.test(currentUrl)) continue;
+    try {
+      if (item.type === 'css' && typeof item.css === 'string') {
+        await win.webContents.insertCSS(item.css);
+      } else if (item.type === 'userscript' && typeof item.scriptUrl === 'string') {
+        const code = await fetchText(item.scriptUrl);
+        if (code && code.length > 0) {
+          await win.webContents.executeJavaScript(code, true);
+        }
+      }
+    } catch {}
+  }
+}
+
+app.whenReady().then(async () => {
   // AppUserModelID para que Windows use el icono en la barra de tareas
   if (process.platform === 'win32') {
     app.setAppUserModelId('com.matiasdante.twitch-desktop');
   }
+  // Cargar extensiones de Chrome descomprimidas si se configuraron
+  try { await loadChromeExtensionsFromConfig(); } catch {}
   createWindow();
 
   app.on('activate', () => {

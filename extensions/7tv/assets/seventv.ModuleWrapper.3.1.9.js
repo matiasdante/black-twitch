@@ -1,0 +1,1 @@
+import{e as r,r as m,J as p,x as o,B as n,C as u,H as d,X as l}from"./seventv.index.3.1.9.js";const i=r({__name:"ModuleWrapper",props:{mod:{}},emits:["mounted"],setup(c,{emit:t}){const s=t,e=m();return p(()=>{s("mounted",e.value)}),(a,f)=>(o(),n(l,null,{default:u(()=>[(o(),n(d(a.mod),{ref_key:"modRef",ref:e},null,512))]),_:1}))}});export{i as default};

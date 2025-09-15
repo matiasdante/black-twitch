@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // API mínima por si se requiere en el futuro
 contextBridge.exposeInMainWorld('twitchApp', {
-  version: '0.1.0',
+  version: '0.2.0',
 });
 
 // Reemplazo de colores morados por negro/grises

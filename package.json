@@ -1,6 +1,6 @@
 {
   "name": "twitch-desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "App sencilla en Electron para ver Twitch en escritorio.",
   "main": "src/main.js",
@@ -23,7 +23,11 @@
     "files": [
       "src/**",
       "resources/**",
+      "extensions/**",
       "package.json"
+    ],
+    "asarUnpack": [
+      "extensions/**"
     ],
     "win": {
       "target": ["dir"],

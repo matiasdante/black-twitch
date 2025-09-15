@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    {
+      "name": "7TV",
+      "type": "chrome",
+      "enabled": true,
+      "extensionPath": "extensions/7tv",
+      "match": "*://*.twitch.tv/*"
+    }
+  ]
+}
