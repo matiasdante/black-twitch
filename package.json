@@ -1,0 +1,33 @@
+{
+  "name": "twitch-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "App sencilla en Electron para ver Twitch en escritorio.",
+  "main": "src/main.js",
+  "author": "matiasdante",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --dir"
+  },
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.matiasdante.twitch-desktop",
+    "productName": "Twitch Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**",
+      "resources/**",
+      "package.json"
+    ],
+    "win": {
+      "target": ["dir"],
+      "artifactName": "${productName}-${version}-${os}-${arch}-${ext}"
+    }
+  }
+}
