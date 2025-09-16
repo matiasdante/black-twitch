@@ -49,7 +49,7 @@ git clone https://github.com/matiasdante/twitch-desktop.git
 1) Entra a la carpeta del proyecto
 
 ```pwsh
-cd twitch-desktop
+cd black-twitch
 ```
 
 1) Instala las dependencias
