@@ -1,0 +1,199 @@
+/* Aplicar tema negro específicamente al contenido principal, no a la barra lateral */
+.root-scrollable__wrapper,
+.channel-root,
+.channel-page,
+.video-player,
+.video-player__container,
+.chat-shell,
+.stream-chat,
+[data-a-target="player-overlay-click-handler"],
+.top-nav,
+.top-nav__menu {
+  /* Variables comunes de Twitch hacia negro/grises */
+  --color-brand: #000000 !important;
+  --color-accent: #000000 !important;
+  --color-brand-accent: #000000 !important;
+  --color-background-button-primary-default: #000000 !important;
+  --color-text-link: #bbbbbb !important;
+  --color-text-interactable: #bbbbbb !important;
+  --color-text-link-hover: #e0e0e0 !important;
+  --color-background-button-primary-hover: #1a1a1a !important;
+  --color-border-brand: #2a2a2a !important;
+  /* Paleta púrpura de Twitch a negro */
+  --color-twitch-purple: #000000 !important;
+  --color-twitch-purple-1: #000000 !important;
+  --color-twitch-purple-2: #000000 !important;
+  --color-twitch-purple-3: #000000 !important;
+  --color-twitch-purple-4: #000000 !important;
+  --color-twitch-purple-5: #000000 !important;
+  --color-twitch-purple-6: #000000 !important;
+  --color-twitch-purple-7: #000000 !important;
+  --color-twitch-purple-8: #000000 !important;
+  --color-twitch-purple-9: #000000 !important;
+  --color-twitch-purple-10: #000000 !important;
+}
+
+/* Excluir completamente la barra lateral del tema negro */
+[data-a-target="side-nav"],
+[data-a-target="side-nav"] *,
+.side-nav,
+.side-nav *,
+.Layout-sc-1xcs6mc-0.side-nav,
+.Layout-sc-1xcs6mc-0.side-nav *,
+[class*="side-nav"],
+[class*="side-nav"] *,
+.side-bar-contents,
+.side-bar-contents *,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents *,
+[class*="side-bar-contents"],
+[class*="side-bar-contents"] * {
+  /* Restaurar todas las variables CSS de Twitch a sus valores originales */
+  --color-brand: #9147ff !important;
+  --color-accent: #9147ff !important;
+  --color-brand-accent: #9147ff !important;
+  --color-background-button-primary-default: #9147ff !important;
+  --color-text-link: #9147ff !important;
+  --color-text-interactable: #9147ff !important;
+  --color-text-link-hover: #772ce8 !important;
+  --color-background-button-primary-hover: #772ce8 !important;
+  --color-border-brand: #9147ff !important;
+  --color-twitch-purple: #9147ff !important;
+  --color-twitch-purple-1: #9147ff !important;
+  --color-twitch-purple-2: #772ce8 !important;
+  --color-twitch-purple-3: #5c16c5 !important;
+  --color-twitch-purple-4: #3c0e70 !important;
+  --color-twitch-purple-5: #2f0a57 !important;
+  --color-twitch-purple-6: #1f0a3c !important;
+  --color-twitch-purple-7: #0f051a !important;
+  --color-twitch-purple-8: #0d0415 !important;
+  --color-twitch-purple-9: #0a0211 !important;
+  --color-twitch-purple-10: #07010c !important;
+  /* Anular cualquier color forzado */
+  color: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+/* Enlaces solo en el contenido principal, no en la barra lateral */
+.root-scrollable__wrapper a,
+.root-scrollable__wrapper .link,
+.root-scrollable__wrapper [class*="link"],
+.channel-root a,
+.channel-root .link,
+.channel-root [class*="link"],
+.top-nav a,
+.top-nav .link,
+.top-nav [class*="link"] {
+  color: #bbbbbb !important;
+}
+
+/* REGLA UNIVERSAL: Ningún elemento dentro de side-bar-contents debe verse afectado */
+.side-bar-contents,
+.side-bar-contents *,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents * {
+  /* Resetear completamente cualquier override de CSS */
+  filter: none !important;
+  /* Usar los colores que Twitch asigne naturalmente */
+}
+
+/* Anular específicamente cualquier color forzado en la sidebar */
+.side-bar-contents [style*="color"],
+.side-bar-contents [style*="background"],
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents [style*="color"],
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents [style*="background"] {
+  color: inherit !important;
+  background-color: inherit !important;
+}
+
+/* Preservar colores originales en la barra lateral */
+[data-a-target="side-nav"] a,
+[data-a-target="side-nav"] .link,
+[data-a-target="side-nav"] [class*="link"],
+.side-nav a,
+.side-nav .link,
+.side-nav [class*="link"],
+[class*="side-nav"] a,
+[class*="side-nav"] .link,
+[class*="side-nav"] [class*="link"],
+.side-bar-contents a,
+.side-bar-contents .link,
+.side-bar-contents [class*="link"],
+.side-bar-contents span,
+.side-bar-contents div,
+.side-bar-contents p,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents a,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents .link,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents [class*="link"],
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents span,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents div,
+.Layout-sc-1xcs6mc-0.bMcAyM.side-bar-contents p {
+  color: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+/* Específicamente para el sidebar de Following y Live Channels */
+.side-nav-section,
+[data-test-selector="followed-channels"],
+[data-test-selector="live-channels"],
+.side-nav-card,
+.side-nav-show-more-toggle,
+.tw-tower .tw-tower__content,
+.side-bar-contents .side-nav-section,
+.side-bar-contents [data-test-selector="followed-channels"],
+.side-bar-contents [data-test-selector="live-channels"],
+.side-bar-contents .side-nav-card,
+.side-bar-contents .side-nav-show-more-toggle {
+  background-color: inherit !important;
+  color: inherit !important;
+  border-color: inherit !important;
+}
+
+/* Preservar colores de estado en vivo (puntos rojos) y contadores */
+.side-nav-card__live-status,
+[class*="live-indicator"],
+[data-a-target="live-indicator"],
+.side-bar-contents .side-nav-card__live-status,
+.side-bar-contents [class*="live-indicator"],
+.side-bar-contents [data-a-target="live-indicator"],
+[class*="viewer-count"],
+[class*="live-indicator-container"] {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Gradiente negro→gris claro para elementos solicitados */
+.Layout-sc-1xcs6mc-0.jmERFg.stream-chat-header,
+.Layout-sc-1xcs6mc-0.kbXNWp {
+  background-image: linear-gradient(180deg, #000000 0%, #1a1a1a 60%, #2a2a2a 100%) !important;
+  background-color: #000000 !important;
+  border-color: #2a2a2a !important;
+}
+
+/* Texto en blanco dentro del contenedor kbXNWp */
+.Layout-sc-1xcs6mc-0.kbXNWp,
+.Layout-sc-1xcs6mc-0.kbXNWp * {
+  color: #ffffff !important;
+  --color-text-base: #ffffff !important;
+  --color-text-interactable: #ffffff !important;
+}
+
+/* Gradiente y texto blanco para highlight colapsado solicitado */
+.Layout-sc-1xcs6mc-0.eUumjH.highlight.highlight__collapsed {
+  background-image: linear-gradient(180deg, #000000 0%, #1a1a1a 60%, #2a2a2a 100%) !important;
+  background-color: #000000 !important;
+  border-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+.Layout-sc-1xcs6mc-0.eUumjH.highlight.highlight__collapsed * {
+  color: #ffffff !important;
+}
+
+
+.twx-btn:active { filter: brightness(0.9); }
+.twx-btn.min { background: #6b6b6b; }
+.twx-btn.max { background: #bfbfbf; }
+.twx-btn.close { background: #e05252; }
+
+/* Evitar solape con contenido superior de Twitch */

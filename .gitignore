@@ -18,6 +18,7 @@ Thumbs.db
 /dist/
 /out/
 /release/
+/build/
 # Logs
 logs
 *.log

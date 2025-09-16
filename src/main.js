@@ -34,16 +34,13 @@ if (!gotTheLock) {
  * Crea la ventana principal
  */
 function resolveAppIcon() {
-  const candidates = [
-    path.join(__dirname, '..', 'resources', 'twitch-black.ico'),
-    path.join(__dirname, '..', 'resources', 'twitch-black.ico.ico'),
-    path.join(__dirname, '..', 'resources', 'twitch-black.png'),
-  ];
+  // Prioriza el .ico, luego PNG
+  const ico = path.join(__dirname, '..', 'resources', 'twitch-black.ico');
+  const png = path.join(__dirname, '..', 'resources', 'twitch-black.png');
   try {
     const fs = require('fs');
-    for (const p of candidates) {
-      if (fs.existsSync(p)) return p;
-    }
+    if (fs.existsSync(ico)) return ico;
+    if (fs.existsSync(png)) return png;
   } catch {}
   return undefined;
 }
@@ -54,8 +51,7 @@ function createWindow() {
     height: 800,
     backgroundColor: '#000000',
     autoHideMenuBar: true,
-    frame: false, // ventana sin marco para dibujar controles personalizados
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+    frame: true, // Usar barra de título y controles nativos de Windows
     icon: resolveAppIcon(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -65,6 +61,17 @@ function createWindow() {
       sandbox: false,
       autoplayPolicy: 'no-user-gesture-required',
     },
+  });
+
+  // Permitir pantalla completa real
+  win.setFullScreenable(true);
+
+  // Ocultar barra personalizada al entrar en pantalla completa
+  win.on('enter-full-screen', () => {
+    win.webContents.send('window:fullscreen-changed', true);
+  });
+  win.on('leave-full-screen', () => {
+    win.webContents.send('window:fullscreen-changed', false);
   });
 
   // Clave del CSS inyectado (por si en un futuro queremos retirarlo)
@@ -118,96 +125,8 @@ function createWindow() {
   win.loadURL(twitchUrl);
 
   // Inyectar CSS para forzar paleta negro/grises
-  const css = `
-    :root {
-      /* Variables comunes de Twitch hacia negro/grises */
-      --color-brand: #000000 !important;
-      --color-accent: #000000 !important;
-      --color-brand-accent: #000000 !important;
-      --color-background-button-primary-default: #000000 !important;
-      --color-text-link: #bbbbbb !important;
-      --color-text-interactable: #bbbbbb !important;
-      --color-text-link-hover: #e0e0e0 !important;
-      --color-background-button-primary-hover: #1a1a1a !important;
-      --color-border-brand: #2a2a2a !important;
-      /* Paleta púrpura de Twitch a negro */
-      --color-twitch-purple: #000000 !important;
-      --color-twitch-purple-1: #000000 !important;
-      --color-twitch-purple-2: #000000 !important;
-      --color-twitch-purple-3: #000000 !important;
-      --color-twitch-purple-4: #000000 !important;
-      --color-twitch-purple-5: #000000 !important;
-      --color-twitch-purple-6: #000000 !important;
-      --color-twitch-purple-7: #000000 !important;
-      --color-twitch-purple-8: #000000 !important;
-      --color-twitch-purple-9: #000000 !important;
-      --color-twitch-purple-10: #000000 !important;
-    }
-    a, .link, [class*="link"] { color: #bbbbbb !important; }
-
-    /* Gradiente negro→gris claro para elementos solicitados */
-    .Layout-sc-1xcs6mc-0.jmERFg.stream-chat-header,
-    .Layout-sc-1xcs6mc-0.kbXNWp {
-      background-image: linear-gradient(180deg, #000000 0%, #1a1a1a 60%, #2a2a2a 100%) !important;
-      background-color: #000000 !important;
-      border-color: #2a2a2a !important;
-    }
-
-    /* Texto en blanco dentro del contenedor kbXNWp */
-    .Layout-sc-1xcs6mc-0.kbXNWp,
-    .Layout-sc-1xcs6mc-0.kbXNWp * {
-      color: #ffffff !important;
-      --color-text-base: #ffffff !important;
-      --color-text-interactable: #ffffff !important;
-    }
-
-    /* Gradiente y texto blanco para highlight colapsado solicitado */
-    .Layout-sc-1xcs6mc-0.eUumjH.highlight.highlight__collapsed {
-      background-image: linear-gradient(180deg, #000000 0%, #1a1a1a 60%, #2a2a2a 100%) !important;
-      background-color: #000000 !important;
-      border-color: #2a2a2a !important;
-      color: #ffffff !important;
-    }
-    .Layout-sc-1xcs6mc-0.eUumjH.highlight.highlight__collapsed * {
-      color: #ffffff !important;
-    }
-
-    /* ----- Barra superior personalizada (ventana sin marco) ----- */
-    html::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 32px;
-      background: #0a0a0a;
-      -webkit-app-region: drag; /* permite arrastrar la ventana */
-      z-index: 999999;
-    }
-
-    /* Contenedor de botones */
-    .twx-window-controls {
-      position: fixed;
-      top: 6px; right: 10px;
-      display: flex; gap: 10px;
-      z-index: 1000000;
-      -webkit-app-region: no-drag; /* los botones deben ser clicables */
-    }
-    .twx-btn {
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      border: 1px solid #2a2a2a;
-      background: #151515;
-      display: inline-block;
-      cursor: pointer;
-    }
-    .twx-btn:hover { filter: brightness(1.2); }
-    .twx-btn:active { filter: brightness(0.9); }
-    .twx-btn.min { background: #6b6b6b; }
-    .twx-btn.max { background: #bfbfbf; }
-    .twx-btn.close { background: #e05252; }
-
-    /* Evitar solape con contenido superior de Twitch */
-    body { padding-top: 32px !important; }
-  `;
+  const cssPath = path.join(__dirname, 'styles.css');
+  const css = fs.readFileSync(cssPath, 'utf8');
 
 
   win.webContents.on('did-finish-load', async () => {
@@ -244,12 +163,26 @@ function createWindow() {
 
 // --------- Soporte de "extensiones" ---------
 function readExtensionsConfig() {
-  const configPath = path.join(__dirname, '..', 'resources', 'extensions.json');
+  let configPath;
+
+  // Check if we're in development mode by checking if we're inside an ASAR
+  const isDevelopment = !__dirname.includes('.asar');
+
+  if (isDevelopment) {
+    // Development mode - use project root path
+    configPath = path.join(__dirname, '..', 'resources', 'extensions.json');
+  } else {
+    // Production mode (built app)
+    configPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'resources', 'extensions.json');
+  }
+
   try {
     const raw = fs.readFileSync(configPath, 'utf8');
     const json = JSON.parse(raw);
     if (Array.isArray(json.extensions)) return json.extensions;
-  } catch {}
+  } catch (e) {
+    console.error(`[extensions] Error reading config from ${configPath}:`, e);
+  }
   return [];
 }
 
@@ -258,22 +191,42 @@ async function loadChromeExtensionsFromConfig() {
   const chromeExts = items.filter(e => e && e.enabled && e.type === 'chrome' && typeof e.extensionPath === 'string');
   for (const ext of chromeExts) {
     try {
-      const baseDir = path.join(__dirname, '..');
-      const resolvedPath = path.isAbsolute(ext.extensionPath)
-        ? ext.extensionPath
-        : path.join(baseDir, ext.extensionPath);
+      let resolvedPath;
+      // Check if we're in development mode by checking if we're inside an ASAR
+      const isDevelopment = !__dirname.includes('.asar') && fs.existsSync(path.join(__dirname, '..', 'extensions'));
+
+      if (isDevelopment) {
+        // Development mode - use project root path
+        const baseDir = path.join(__dirname, '..');
+        resolvedPath = path.isAbsolute(ext.extensionPath)
+          ? ext.extensionPath
+          : path.join(baseDir, ext.extensionPath);
+      } else {
+        // Production mode (built app)
+        resolvedPath = path.isAbsolute(ext.extensionPath)
+          ? ext.extensionPath
+          : path.join(process.resourcesPath, 'app.asar.unpacked', ext.extensionPath);
+      }
+
+      console.log(`[extensions] Is development: ${isDevelopment}`);
+      console.log(`[extensions] __dirname: ${__dirname}`);
+      console.log(`[extensions] Checking path: ${resolvedPath}`);
+      console.log(`[extensions] Path exists: ${fs.existsSync(resolvedPath)}`);
+
       if (fs.existsSync(resolvedPath)) {
         const info = await session.defaultSession.loadExtension(resolvedPath, { allowFileAccess: true });
         if (info && info.name) {
-          console.log(`[extensions] Cargada extensión: ${info.name} (${info.id}) desde ${resolvedPath}`);
+          console.log(`[extensions] ✅ Cargada extensión: ${info.name} (${info.id}) desde ${resolvedPath}`);
         } else {
-          console.log(`[extensions] Cargada extensión desde ${resolvedPath}`);
+          console.log(`[extensions] ✅ Cargada extensión desde ${resolvedPath}`);
         }
       } else {
-        // console.warn(`[extensions] Ruta de extensión no existe: ${resolvedPath}`);
+        console.warn(`[extensions] ❌ Ruta de extensión no existe: ${resolvedPath}`);
       }
       // eslint-disable-next-line no-empty
-    } catch (e) {}
+    } catch (e) {
+      console.error(`[extensions] ❌ Error cargando extensión:`, e);
+    }
   }
 }
 

@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 // API mínima por si se requiere en el futuro
 contextBridge.exposeInMainWorld('twitchApp', {
   version: '0.2.0',
+  onFullscreenChanged: (callback) => ipcRenderer.on('window:fullscreen-changed', (_e, isFullscreen) => callback(isFullscreen))
 });
 
 // Reemplazo de colores morados por negro/grises
@@ -263,5 +264,91 @@ contextBridge.exposeInMainWorld('twitchApp', {
   } else {
     injectWindowControls();
   }
+})();
+
+// --- Botón Back 2 Twitch si no es twitch.tv ---
+(() => {
+// Lista de URLs donde debe salir el botón, aunque sea www.twitch.tv o dominios relacionados
+const forceShowBtnUrls = [
+  'https://www.twitch.tv/p/es-mx/about/',
+  'https://twitchadvertising.tv/',
+  'https://blog.twitch.tv/es-es/',
+  'https://dev.twitch.tv/',
+  'https://www.twitch.tv/downloads',
+  'https://careers.twitch.com/',
+  'https://www.igdb.com/',
+  'https://www.amazon.com/twitchmerch',
+  'https://www.twitch.tv/p/es-mx/partners/',
+  'https://www.twitch.tv/p/press-center/',
+  'https://www.twitch.tv/turbo',
+  'https://help.twitch.tv/s/article/gift-card',
+  'https://legal.twitch.com/legal/cookie-notice/',
+  'https://legal.twitch.com/legal/privacy-notice/',
+  'https://help.twitch.tv/s/',
+  'https://legal.twitch.com/legal/accessibility/',
+  'https://safety.twitch.tv/s/article/Community-Guidelines',
+  'https://legal.twitch.com/legal/ad-choices/',
+  'https://www.twitch.tv/privacy',
+  'https://safety.twitch.tv/s/',
+  'https://www.twitch.tv/p/es-mx/security/',
+  'https://legal.twitch.com/legal/terms-of-service/',
+  'https://legal.twitch.com/'
+];
+
+  function isForceShowBtnUrl() {
+    const current = window.location.href.split('#')[0].split('?')[0];
+    return forceShowBtnUrls.some(url => current === url);
+  }
+
+  function isTwitchDomain() {
+    try {
+      // Solo acepta exactamente www.twitch.tv y no está en la lista de forzados
+      return window.location.hostname === 'www.twitch.tv' && !isForceShowBtnUrl();
+    } catch { return false; }
+  }
+
+  function injectBack2TwitchBtn() {
+    if (document.getElementById('back2twitch-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'back2twitch-btn';
+    btn.textContent = 'Back 2 Twitch';
+    btn.style.position = 'fixed';
+    btn.style.left = '50%';
+    btn.style.bottom = '24px';
+    btn.style.transform = 'translateX(-50%)';
+    btn.style.background = '#000';
+    btn.style.color = '#fff';
+    btn.style.fontSize = '18px';
+    btn.style.padding = '12px 32px';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '8px';
+    btn.style.zIndex = '99999';
+    btn.style.boxShadow = '0 2px 12px #0008';
+    btn.style.cursor = 'pointer';
+    btn.style.opacity = '0.95';
+    btn.addEventListener('click', () => {
+      window.location.href = 'https://www.twitch.tv/';
+    });
+    document.body.appendChild(btn);
+  }
+
+  function removeBack2TwitchBtn() {
+    const btn = document.getElementById('back2twitch-btn');
+    if (btn) btn.remove();
+  }
+
+  function checkAndToggleBtn() {
+    if (!isTwitchDomain()) {
+      injectBack2TwitchBtn();
+    } else {
+      removeBack2TwitchBtn();
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', checkAndToggleBtn);
+  window.addEventListener('load', checkAndToggleBtn);
+  window.addEventListener('popstate', checkAndToggleBtn);
+  window.addEventListener('hashchange', checkAndToggleBtn);
+  setInterval(checkAndToggleBtn, 1500); // Por si navega con JS SPA
 })();
 

@@ -1,6 +1,6 @@
 {
-  "name": "twitch-desktop",
-  "version": "0.2.0",
+  "name": "black-twitch",
+  "version": "1.1.0",
   "private": true,
   "description": "App sencilla en Electron para ver Twitch en escritorio.",
   "main": "src/main.js",
@@ -8,18 +8,19 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win --dir"
+    "build:win": "electron-builder --win"
   },
   "devDependencies": {
     "electron": "^31.3.1",
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.matiasdante.twitch-desktop",
-    "productName": "Twitch Desktop",
+    "appId": "com.matiasdante.black-twitch",
+    "productName": "BlackTwitch",
     "directories": {
-      "output": "dist"
+      "output": "build"
     },
+    "icon": "resources/twitch-black.png",
     "files": [
       "src/**",
       "resources/**",
@@ -27,11 +28,12 @@
       "package.json"
     ],
     "asarUnpack": [
-      "extensions/**"
+      "extensions/**",
+      "resources/extensions.json"
     ],
     "win": {
-      "target": ["dir"],
-      "artifactName": "${productName}-${version}-${os}-${arch}-${ext}"
+      "target": "nsis",
+      "artifactName": "${productName}-${version}-${os}-${arch}-setup.${ext}"
     }
   }
 }
